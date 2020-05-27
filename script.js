@@ -8,6 +8,7 @@
 // @match        https://boxcritters.com/play/*
 // @grant        none
 // @require      https://raw.githubusercontent.com/SArpnt/joinFunction/master/script.js
+// @require      https://raw.githubusercontent.com/SArpnt/EventHandler/master/script.js
 // ==/UserScript==
 
 (function () {
@@ -26,32 +27,6 @@
 		console.log("cardboard already exists");
 		return;
 	}
-
-	class EventHandler { // probably move this to a seperate repo and @include it --------------------------------------------
-		constructor(events) {
-			this.strict = !!events;
-			this._events = {};
-			if (events)
-				for (let i in events)
-					this._events[i] = [];
-		}
-		on(name, func) {
-			if (typeof func != 'function') throw new TypeError(`Input 2 of EventHandler is a '${typeof func}' instead of a 'function'`);
-			if (this.strict && !this._events[name]) { console.warn(`Event '${name}' does not exist`); return; }
-			this._events[name].push(func);
-		}
-		emit(name, ...data) {
-			if (this.strict && !this._events[name]) { console.warn(`Event '${name}' does not exist`); return; }
-			this._events[name].forEach(e => e(...data));
-		}
-		emitContext(name, context, ...data) {
-			if (this.strict && !this._events[name]) { console.warn(`Event '${name}' does not exist`); return; }
-			this._events[name].forEach(e => e.apply(context, data));
-		}
-	}
-	EventHandler.prototype.addEventListener = EventHandler.prototype.on;
-	EventHandler.prototype.dispatchEvent = EventHandler.prototype.emit;
-	EventHandler.prototype.dispatchEventContext = EventHandler.prototype.emitContext;
 
 	Cardboard = new EventHandler; // not strict yet
 	Cardboard.version = [0, 0, 0];
