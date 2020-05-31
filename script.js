@@ -5,7 +5,7 @@
 // @run-at       document-start
 // @description  modding api
 // @author       SArpnt
-// @match        https://boxcritters.com/play/*
+// @match        https://play.boxcritters.com/*
 // @grant        none
 // @require      https://raw.githubusercontent.com/SArpnt/joinFunction/master/script.js
 // @require      https://raw.githubusercontent.com/SArpnt/EventHandler/master/script.js
