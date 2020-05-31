@@ -9,3 +9,4 @@
 // @grant        none
 // @require      https://cdn.jsdelivr.net/gh/boxcritters/cardboard/module.js
 // ==/UserScript==
+window.cardboard = cardboard;
