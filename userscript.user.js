@@ -94,6 +94,7 @@
 		client.World = joinFunction(client.World, function () {
 			cardboard.emit('worldCreated', this);
 		});
+		cardboard.emit('clientCreated', client);
 	});
 
 	cardboard.on('worldCreated', function (w) {
