@@ -37,7 +37,7 @@
 
 	//create button
 
-	scriptTags = {
+	let scriptTags = {
 		Client: { text: null, src: '/scripts/login.js', state: 0, }, // state 0 unloaded, 1 loaded
 		Login: { text: null, src: '/scripts/login.js', state: 0, },
 		Index: { text: null, src: '/scripts/login.js', state: 0, },
@@ -80,11 +80,18 @@
 		cardboard.emit('runScripts');
 	});
 
-	cardboard.getPlayerCrumb = (t, d) => world.room.playerCrumbs.find(e => e[t] == d);
-	cardboard.getPlayerSprite = (t, d) => world.stage.room.players[cardboard.getPlayerCrumb(t, d).i];
+	cardboard.getPlayerCrumb = function (t, d, w) {
+		if (typeof w == 'undefined') 
+			if (world)
+				w = world
+			else
+				throw `'world' not found, specify a World`
+		return w.room.playerCrumbs.find(e => e[t] == d);
+	}
+	cardboard.getPlayerSprite = (t, d, w) => world.stage.room.players[cardboard.getPlayerCrumb(t, d, w).i];
 
 	cardboard.on('runScriptClient', function () {
-		client.World = joinFunction(World, function () {
+		client.World = joinFunction(client.World, function () {
 			cardboard.emit('worldcreated', this);
 		});
 	});
