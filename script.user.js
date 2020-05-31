@@ -66,7 +66,7 @@
 
 					scripts[i].state = 1;
 
-					if (!Object.values(scriptTags).find(e => !e.stage)) {
+					if (!Object.values(scriptTags).find(e => !e.state)) {
 						o.disconnect();
 						cardboard.emit('loadScripts');
 					}
@@ -75,7 +75,7 @@
 	}).observe(document.documentElement, { childList: true, subtree: true });
 
 	window.addEventListener('load', function () {
-		if (!Object.values(scriptTags).find(e => !e.stage)) throw [`What the heck happened to the MutationObserver?`, scriptTags];
+		if (!Object.values(scriptTags).find(e => !e.state)) throw [`What the heck happened to the MutationObserver?`, scriptTags];
 		for (let i in scriptTags) {
 			console.log(`runScript${i}`, scriptTags[i].tag);
 			cardboard.emit(`runScript${i}`, scriptTags[i].tag);

@@ -1,4 +1,9 @@
 # cardboard
+
 modding api
 
-`@require https://cdn.jsdelivr.net/gh/boxcritters/cardboard/script.user.js`
+```js
+// @require      https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js
+// @require      https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js
+// @require      https://cdn.jsdelivr.net/gh/boxcritters/cardboard/script.user.min.js
+```
