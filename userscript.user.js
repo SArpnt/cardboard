@@ -7,6 +7,5 @@
 // @author       SArpnt
 // @match        https://play.boxcritters.com/*
 // @grant        none
-// @require      https://cdn.jsdelivr.net/gh/boxcritters/cardboard/module.js
+// @require      https://cdn.jsdelivr.net/gh/boxcritters/cardboard/script.js
 // ==/UserScript==
-window.cardboard = cardboard;
