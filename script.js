@@ -27,7 +27,7 @@
 		return;
 	}
 
-	cardboard = new EventHandler; // not strict yet
+	let cardboard = new EventHandler; // not strict yet
 	cardboard.version = [0, 0, 0];
 
 	if (document.head) { // dumdum detector
