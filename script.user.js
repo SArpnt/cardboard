@@ -12,10 +12,10 @@
 // ==/UserScript==
 
 (function () {
-	const cVersion = [0, 0, 0]
+	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js'
+	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js'
 
-	if (!joinFunction) throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js'
-	if (!EventHandler) throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js'
+	const cVersion = [0, 0, 0]
 
 	function versionCompare(a, b) {
 		for (let i in a) {
