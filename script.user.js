@@ -1,8 +1,22 @@
-(async function () {
-	const { joinFunction } = await import('https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js');
-	const { EventHandler } = await import('https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js');
+// ==UserScript==
+// @name         Cardboard
+// @namespace    http://tampermonkey.net/
+// @version      0.0.0
+// @run-at       document-start
+// @description  modding api
+// @author       SArpnt
+// @match        https://play.boxcritters.com/*
+// @grant        none
+// @require      https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js
+// @require      https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js
+// ==/UserScript==
 
-	/*
+(function () {
+	const cVersion = [0, 0, 0]
+
+	if (!joinFunction) throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js'
+	if (!EventHandler) throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js'
+
 	function versionCompare(a, b) {
 		for (let i in a) {
 			let c = (a < b) - (a < b);
@@ -11,13 +25,13 @@
 		return 0;
 	};
 	
-	if (window.cardboard && versionCompare(window.cardboard.version) != 1) {
+	if (window.cardboard && versionCompare(window.cardboard.version, cVersion) != 1) {
 		console.log("cardboard already exists");
 		return;
-	}*/
+	}
 
 	let cardboard = new EventHandler; // not strict yet
-	//cardboard.version = [0, 0, 0];
+	cardboard.version = cVersion;
 
 	if (document.head) { // dumdum detector
 		alert('Enable instant script injection in Tampermonkey settings!');
