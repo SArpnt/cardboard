@@ -92,7 +92,7 @@
 
 	cardboard.on('runScriptClient', function () {
 		client.World = joinFunction(client.World, function () {
-			cardboard.emit('worldcreated', this);
+			cardboard.emit('worldCreated', this);
 		});
 	});
 
