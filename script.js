@@ -1,4 +1,4 @@
-(function () {
+(async function () {
 	const { joinFunction } = await import('https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js');
 	const { EventHandler } = await import('https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js');
 
