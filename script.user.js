@@ -62,7 +62,7 @@
 						s.tag = tag;
 						if (s.src) s.tag.innerText = s.text;
 						else s.text = s.tag.innerText;
-						s.tag.removeAttribute('src')
+						s.tag.removeAttribute('src');
 
 						console.log(`loadScript${s.name}`, s.tag);
 						cardboard.emit(`loadScript${s.name}`, s.tag);
