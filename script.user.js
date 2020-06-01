@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.0.2
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
 // @match        https://play.boxcritters.com/*
 // @grant        none
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
-// @require      https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js
-// @require      https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js
+// @require      https://github.com/sarpnt/joinFunction/raw/master/script.js
+// @require      https://github.com/sarpnt/EventHandler/raw/master/script.js
 // ==/UserScript==
 
 (function () {
