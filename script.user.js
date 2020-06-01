@@ -86,7 +86,6 @@
 			finish(s);
 		};
 		let finish = function (s) {
-			console.log(`loadScript${s.name}`, s.tag);
 			cardboard.emit(`loadScript${s.name}`, s.tag);
 
 			s.state = 1;
@@ -97,7 +96,6 @@
 				for (let s of scriptTags) {
 					document.documentElement.appendChild(s.tag);
 					s.state = 2;
-					console.log(`runScript${s.name}`, s.tag);
 					cardboard.emit(`runScript${s.name}`, s.tag);
 				}
 				cardboard.emit('runScripts');
@@ -105,7 +103,6 @@
 		};
 
 		let pageLoadDebugger = function () {
-			console.log(scriptTags);
 			if (scriptTags.find(e => e.state != 2)) throw `Cardboard: Script event issues!`;
 		};
 		window.addEventListener('load', pageLoadDebugger);
