@@ -54,7 +54,7 @@
 			{ name: "Index", src: 'index.js', state: 0, },
 			{ name: "UnityProgress", src: '/games/cardgame3/TemplateData/UnityProgress.js', state: 0, },
 			{ name: "UnityLoader", src: '/games/cardgame3/Build/UnityLoader.js', state: 0, },
-			{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerHTML)), state: false, },
+			{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerHTML)), state: 0, },
 		];
 		for (let s of scriptTags)
 			if (s.src)
@@ -72,31 +72,37 @@
 					if (tag) {
 						tag.remove();
 						s.tag = tag;
-						if (s.src)
-							if (!s.text) throw `${s.name} contents not found!`;
-							else s.tag.innerHTML = s.text;
-						else s.text = s.tag.innerHTML;
 						s.tag.removeAttribute('src');
-
-						console.log(`loadScript${s.name}`, s.tag);
-						cardboard.emit(`loadScript${s.name}`, s.tag);
-
-						s.state = 1;
-
-						if (Object.values(scriptTags).find(e => !e.state) == undefined) {
-							o.disconnect();
-							cardboard.emit('loadScripts');
-							for (let s of scriptTags) {
-								document.documentElement.appendChild(s.tag);
-								s.state = 2;
-								console.log(`runScript${s.name}`, s.tag);
-								cardboard.emit(`runScript${s.name}`, s.tag);
-							}
-							cardboard.emit('runScripts');
-						}
+						waitForTextLoad(s);
 					}
 				}
-		}).observe(document.documentElement, { childList: true, subtree: true });
+		});
+		MO.observe(document.documentElement, { childList: true, subtree: true });
+		let waitForTextLoad = function (s) {
+			if (s.src)
+				if (!s.text) { setTimeout(_ => waitForTextLoad(s), 0); return; }
+				else s.tag.innerHTML = s.text;
+			else s.text = s.tag.innerHTML;
+			finish(s);
+		};
+		let finish = function (s) {
+			console.log(`loadScript${s.name}`, s.tag);
+			cardboard.emit(`loadScript${s.name}`, s.tag);
+
+			s.state = 1;
+
+			if (Object.values(scriptTags).find(e => !e.state) == undefined) {
+				MO.disconnect();
+				cardboard.emit('loadScripts');
+				for (let s of scriptTags) {
+					document.documentElement.appendChild(s.tag);
+					s.state = 2;
+					console.log(`runScript${s.name}`, s.tag);
+					cardboard.emit(`runScript${s.name}`, s.tag);
+				}
+				cardboard.emit('runScripts');
+			}
+		};
 
 		let pageLoadDebugger = function () {
 			console.log(scriptTags);
@@ -127,10 +133,20 @@
 		client.World = joinFunction(client.World, function () {
 			cardboard.emit('worldCreated', this);
 		});
+		let p = client.World.prototype;
+		p.addSocket = joinFunction(p.addSocket, function () {
+			cardboard.emit('worldSocketCreated', this);
+		});
+		p.addStage = joinFunction(p.addStage, function () {
+			cardboard.emit('worldStageCreated', this);
+		});
+		p.loadManifest = joinFunction(p.loadManifest, function () {
+			cardboard.emit('worldManifestCreated', this);
+		});
 		cardboard.emit('clientCreated', client);
 	});
 
-	cardboard.on('worldCreated', function (w) {
+	cardboard.on('worldSocketCreated', function (w) {
 		w.socket.on('login', function () {
 			setTimeout(function () {
 				cardboard.emit('login', w);
