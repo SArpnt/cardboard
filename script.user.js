@@ -54,7 +54,7 @@
 			{ name: "Index", src: 'index.js', state: 0, },
 			{ name: "UnityProgress", src: '/games/cardgame3/TemplateData/UnityProgress.js', state: 0, },
 			{ name: "UnityLoader", src: '/games/cardgame3/Build/UnityLoader.js', state: 0, },
-			{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerText)), state: false, },
+			{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerHTML)), state: false, },
 		];
 		for (let s of scriptTags)
 			if (s.src)
@@ -72,8 +72,10 @@
 					if (tag) {
 						tag.remove();
 						s.tag = tag;
-						if (s.src) s.tag.innerText = s.text;
-						else s.text = s.tag.innerText;
+						if (s.src)
+							if (!s.text) throw `${s.name} contents not found!`;
+							else s.tag.innerHTML = s.text;
+						else s.text = s.tag.innerHTML;
 						s.tag.removeAttribute('src');
 
 						console.log(`loadScript${s.name}`, s.tag);
