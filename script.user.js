@@ -17,7 +17,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const cVersion = [1, 0, 1];
+	const cVersion = [1, 0, 2];
 
 	function versionCompare(a, b) {
 		for (let i in a) {
