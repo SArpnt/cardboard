@@ -48,7 +48,8 @@
 
 	{ // scriptHandling
 		let scriptTags = [
-			{ name: "Client", src: '/lib/client.min.js?0cbdd4babf69a1042f06d863bce8e9db', state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
+			{ name: "Client", selector: `src^="/lib/client.min.js"`, src: '/lib/client.min.js', state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
+			{ name: "Boot", selector: `src^="/lib/boot.min.js"`, src: '/lib/boot.min.js', state: 0, },
 			{ name: "Login", src: '/scripts/login.js', state: 0, },
 			{ name: "Index", src: 'index.js', state: 0, },
 			{ name: "UnityProgress", src: '/games/cardgame3/TemplateData/UnityProgress.js', state: 0, },
@@ -62,7 +63,12 @@
 		let MO = new MutationObserver((m, o) => {
 			for (let s of scriptTags)
 				if (!s.state) {
-					var tag = s.selector ? s.selector() : document.querySelector(`script[src="${s.src}"]`);
+					var tag;
+					if (s.selector)
+						if (typeof s.selector == 'string') tag = document.querySelector(`script[${s.selector}]`);
+						else tag = s.selector();
+					else tag = document.querySelector(`script[src="${s.src}"]`);
+
 					if (tag) {
 						tag.remove();
 						s.tag = tag;
@@ -91,13 +97,14 @@
 		}).observe(document.documentElement, { childList: true, subtree: true });
 
 		let pageLoadDebugger = function () {
-			if (scriptTags.find(e => e.state != 2)) throw `Script event issues!`;
+			console.log(scriptTags);
+			if (scriptTags.find(e => e.state != 2)) throw `Cardboard: Script event issues!`;
 		};
-		window.addEventListener('load', f)
+		window.addEventListener('load', pageLoadDebugger);
 
 		cardboard.on('cardboardShutdown', function () {
 			MO.disconnect();
-			window.removeEventListener('load', pageLoadDebugger)
+			window.removeEventListener('load', pageLoadDebugger);
 		});
 	}
 
