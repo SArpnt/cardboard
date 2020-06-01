@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      0.0.0
+// @version      1.0.0
 // @run-at       document-start
-// @description  modding api
+// @description  Modding api
 // @author       SArpnt
 // @match        https://play.boxcritters.com/*
 // @grant        none
