@@ -9,9 +9,9 @@ modding api
 // @require      https://cdn.jsdelivr.net/gh/boxcritters/cardboard/script.user.min.js
 ```
 
-creates variable cardboard containing useful things
-cardboard.version stores version of cardboard
-cardboard contains an [EventHandler](https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js)
+creates variable cardboard containing useful things\
+cardboard.version stores version of cardboard\
+cardboard contains an [EventHandler](https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js)\
 events:
 
 - loadScripts
