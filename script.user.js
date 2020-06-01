@@ -132,13 +132,13 @@
 		});
 		let p = client.World.prototype;
 		p.addSocket = joinFunction(p.addSocket, function () {
-			cardboard.emit('worldSocketCreated', this);
+			cardboard.emit('worldSocketCreated', this, this.socket);
 		});
-		p.addStage = joinFunction(p.addStage, function () {
-			cardboard.emit('worldStageCreated', this);
+		p.addStage = joinFunction(p.addStage, function (t) {
+			cardboard.emit('worldStageCreated', this, t);
 		});
-		p.loadManifest = joinFunction(p.loadManifest, function () {
-			cardboard.emit('worldManifestCreated', this);
+		p.loadManifest = joinFunction(p.loadManifest, function (t) {
+			cardboard.emit('worldManifestCreated', this, t);
 		});
 		cardboard.emit('clientCreated', client);
 	});
