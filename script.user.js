@@ -21,15 +21,21 @@
 
 	function versionCompare(a, b) {
 		for (let i in a) {
-			let c = (a < b) - (a < b);
+			let c = (a < b) - (b < a);
 			if (c) return c;
 		}
 		return 0;
 	};
 
-	if (window.cardboard && versionCompare(window.cardboard.version, cVersion) != 1) {
-		console.log("cardboard already exists");
-		return;
+	if (window.cardboard) {
+		console.log("Cardboard already running!");
+		if (versionCompare(window.cardboard.version, cVersion) == 1) {
+			console.log("Existing is lower version, replacing");
+			cardboard.emit('cardboardShutdown');
+		} else {
+			console.log("Existing is higher/same version, stopping");
+			return;
+		}
 	}
 
 	let cardboard = new EventHandler; // not strict yet
@@ -53,7 +59,7 @@
 			if (s.src)
 				$.get(s.src, d => (s.text = d), 'text');
 
-		new MutationObserver((m, o) => {
+		let MO = new MutationObserver((m, o) => {
 			for (let s of scriptTags)
 				if (!s.state) {
 					var tag = s.selector ? s.selector() : document.querySelector(`script[src="${s.src}"]`);
@@ -84,8 +90,14 @@
 				}
 		}).observe(document.documentElement, { childList: true, subtree: true });
 
-		window.addEventListener('load', function () {
+		let pageLoadDebugger = function () {
 			if (scriptTags.find(e => e.state != 2)) throw `Script event issues!`;
+		};
+		window.addEventListener('load', f)
+
+		cardboard.on('cardboardShutdown', function () {
+			MO.disconnect();
+			window.removeEventListener('load', pageLoadDebugger)
 		});
 	}
 
