@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      1.0.2
+// @version      1.0.3
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -49,7 +49,7 @@
 	{ // scriptHandling
 		let scriptTags = [
 			{ name: "Client", selector: `src^="/lib/client.min.js"`, src: '/lib/client.min.js', state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
-			{ name: "Boot", selector: `src^="/lib/boot.min.js"`, src: '/lib/boot.min.js', state: 0, },
+			//{ name: "Boot", selector: `src^="/lib/boot.min.js"`, src: '/lib/boot.min.js', state: 0, },
 			{ name: "Login", src: '/scripts/login.js', state: 0, },
 			{ name: "Index", src: 'index.js', state: 0, },
 			{ name: "UnityProgress", src: '/games/cardgame3/TemplateData/UnityProgress.js', state: 0, },
