@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      1.0.3
+// @version      1.1.0
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -103,7 +103,7 @@
 		};
 
 		let pageLoadDebugger = function () {
-			if (scriptTags.find(e => e.state != 2)) throw `Cardboard: Script event issues!`;
+			if (scriptTags.find(e => e.state != 2)) console.error(`Cardboard: Script event issues!`, scriptTags);
 		};
 		window.addEventListener('load', pageLoadDebugger);
 
