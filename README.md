@@ -15,23 +15,32 @@ creates variable cardboard containing useful things.\
 \
 cardboard.version stores version of cardboard\
 \
+cardboard.getPlayer\
+all types:\
+
+- getPlayerCrumb
+- getPlayerCrumbs
+- getPlayerSprite
+- getPlayerSprites
+
+\
 cardboard contains an [EventHandler](https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js)\
 events:
 
 - loadScripts
 - runScripts
-- loadScript(scriptname)
-- runScript(scriptname)
+- loadScript_\[scriptname\]_(script innerHTML)
+- runScript_\[scriptname\]_
   - Client
-  - Boot
   - Login
   - Index
   - UnityProgress
   - UnityLoader
   - ShowGame
-- clientCreated
-- worldCreated
-- worldSocketCreated
-- worldStageCreated
-- worldManifestCreated
-- login
+- clientCreated(client)
+- worldCreated(world)
+- worldSocketCreated(world, socket)
+- worldStageCreated(world, stage)
+- worldManifestCreated(world, manifest)
+- login(world)
+- joinRoom(world, roomCrumb)

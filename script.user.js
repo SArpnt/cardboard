@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      1.1.0
+// @version      2.0.0
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -17,7 +17,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const cVersion = [1, 0, 2];
+	const VERSION = [1, 0, 2];
 
 	function versionCompare(a, b) {
 		for (let i in a) {
@@ -29,7 +29,7 @@
 
 	if (window.cardboard) {
 		console.log("Cardboard already running!");
-		if (versionCompare(window.cardboard.version, cVersion) == 1) {
+		if (versionCompare(window.cardboard.version, VERSION) == 1) {
 			console.log("Existing is lower version, replacing");
 			cardboard.emit('cardboardShutdown');
 		} else {
@@ -39,7 +39,7 @@
 	}
 
 	let cardboard = new EventHandler; // not strict yet
-	cardboard.version = cVersion;
+	cardboard.version = VERSION;
 
 	if (document.head) { // dumdum detector
 		alert('Enable instant script injection in Tampermonkey settings!');
@@ -113,18 +113,32 @@
 		});
 	}
 
-	cardboard.getPlayerCrumb = function (t, d, w) {
-		if (typeof w == 'undefined')
-			if (world)
-				w = world;
-			else
-				throw `'world' not found, specify a World`;
-		return w.room.playerCrumbs.find(e => e[t] == d);
-	};
-	cardboard.getPlayerSprite = (t, d, w) => world.stage.room.players[cardboard.getPlayerCrumb(t, d, w).i];
+	{ // getPlayerCrumb
+		let crumb = v => function (t, d, w) {
+			if (typeof w == 'undefined')
+				if (world)
+					w = world;
+				else
+					throw `'world' not found, specify a world`;
+			let func;
+			if (typeof t == 'function') func = t;
+			else func = e => e[t] == d;
+			return w.room.playerCrumbs[v](func);
+		};
+		cardboard.getPlayerCrumb = crumb("find");
+		cardboard.getPlayerCrumbs = crumb("filter");
+		cardboard.getPlayerSprite = (...a) => world.stage.room.players[cardboard.getPlayerCrumb(...a).i];
+		cardboard.getPlayerSprites = (...a) => cardboard.getPlayerCrumbs(...a).map(e => world.stage.room.players[e.i]);
+	}
 
-	//cardboard.Button = function () {}
-	//cardboard.Button.prototype.remove
+	//cardboard.createButton = function () {}
+	/**
+	 * locations:
+	 * 	aboveChat "#chat .above-chat" (make div for it in "#chat .chat-form")
+	 * 	chat "#chat .input-group-btn"
+	 * 	belowChat "#chat .abelow-chat" (like aboveChat)
+	 * 	// (likely not possible yet) footer (sign out button location)
+	 */
 
 	cardboard.on('runScriptClient', function () {
 		client.World = joinFunction(client.World, function () {
@@ -143,12 +157,18 @@
 		cardboard.emit('clientCreated', client);
 	});
 
+	cardboard.on('worldCreated', function (w) {
+		w.on("joinRoom", t =>
+			setTimeout(
+				_ => cardboard.emit('joinRoom', w, t),
+				0));
+	});
+
 	cardboard.on('worldSocketCreated', function (w) {
-		w.socket.on('login', function () {
-			setTimeout(function () {
-				cardboard.emit('login', w);
-			}, 0);
-		});
+		w.socket.on('login', _ =>
+			setTimeout(
+				_ => cardboard.emit('login', w),
+				0));
 	});
 
 	window.cardboard = cardboard;
