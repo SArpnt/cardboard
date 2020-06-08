@@ -8,7 +8,7 @@ modding api
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://github.com/sarpnt/joinFunction/raw/master/script.js
 // @require      https://github.com/sarpnt/EventHandler/raw/master/script.js
-// @require      https://github.com/boxcritters/cardboard/raw/master/script.user.js
+// @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
 ```
 
 creates variable cardboard containing useful things.\
@@ -16,7 +16,7 @@ creates variable cardboard containing useful things.\
 cardboard.version stores version of cardboard\
 \
 cardboard.getPlayer\
-all types:\
+all types:
 
 - getPlayerCrumb
 - getPlayerCrumbs
@@ -29,8 +29,8 @@ events:
 
 - loadScripts
 - runScripts
-- loadScript_\[scriptname\]_(script innerHTML)
-- runScript_\[scriptname\]_
+- loadScript*\[scriptname\]*(script innerHTML)
+- runScript*\[scriptname\]*
   - Client
   - Login
   - Index
