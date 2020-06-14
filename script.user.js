@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0
+// @version      2.0.1
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -17,7 +17,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const VERSION = [1, 0, 2];
+	const VERSION = [2, 0, 1];
 
 	function versionCompare(a, b) {
 		for (let i in a) {
@@ -41,8 +41,9 @@
 	let cardboard = new EventHandler; // not strict yet
 	cardboard.version = VERSION;
 
-	if (document.head) { // dumdum detector
-		alert('Enable instant script injection in Tampermonkey settings!');
+	if (document.body) { // bad loading detector
+		console.log(document);
+		alert(`Cardboard wasn't injected in time! Try refreshing or enabling instant script injection in tampermonkey settings.`);
 		return;
 	}
 
@@ -103,9 +104,11 @@
 		};
 
 		let pageLoadDebugger = function () {
-			if (scriptTags.find(e => e.state != 2)) console.error(`Cardboard: Script event issues!`, scriptTags);
+			for (let t of scriptTags)
+				if (t.stage != 2)
+					console.error(`Cardboard: Script event issues!`, t);
 		};
-		window.addEventListener('load', pageLoadDebugger);
+		window.addEventListener('load', _ => setTimeout(pageLoadDebugger, 0));
 
 		cardboard.on('cardboardShutdown', function () {
 			MO.disconnect();
@@ -131,7 +134,14 @@
 		cardboard.getPlayerSprites = (...a) => cardboard.getPlayerCrumbs(...a).map(e => world.stage.room.players[e.i]);
 	}
 
-	//cardboard.createButton = function () {}
+	/*
+	cardboard.createButton = function (text, pos, style = "") {
+		let b = document.createElement('button'); // acutally maybe copy element
+		b.innerText = text;
+		b.style = style;
+		return b;
+	}
+	*/
 	/**
 	 * locations:
 	 * 	aboveChat "#chat .above-chat" (make div for it in "#chat .chat-form")
