@@ -105,7 +105,7 @@
 
 		let pageLoadDebugger = function () {
 			for (let t of scriptTags)
-				if (t.stage != 2)
+				if (t.state != 2)
 					console.error(`Cardboard: Script event issues!`, t);
 		};
 		window.addEventListener('load', _ => setTimeout(pageLoadDebugger, 0));
