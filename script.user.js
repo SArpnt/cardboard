@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1
+// @version      2.0.2
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -17,7 +17,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const VERSION = [2, 0, 1];
+	const VERSION = [2, 0, 2];
 
 	function versionCompare(a, b) {
 		for (let i in a) {
@@ -72,8 +72,8 @@
 
 					if (tag) {
 						tag.remove();
-						s.tag = tag;
-						s.tag.removeAttribute('src');
+						tag.addEventListener('beforescriptexecute', e=>e.preventDefault()) // firefox fix
+						s.tag = document.createElement('script');
 						waitForTextLoad(s);
 					}
 				}
