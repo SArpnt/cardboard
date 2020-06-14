@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      2.0.3
+// @version      2.0.4
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -17,7 +17,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const VERSION = [2, 0, 3];
+	const VERSION = [2, 0, 4];
 
 	function versionCompare(a, b) {
 		for (let i in a) {
@@ -57,9 +57,6 @@
 			{ name: "UnityLoader", src: '/games/cardgame3/Build/UnityLoader.js', state: 0, },
 			{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerHTML)), state: 0, },
 		];
-		for (let s of scriptTags)
-			if (s.src)
-				$.get(s.src, d => (s.text = d), 'text');
 
 		let MO = new MutationObserver((m, o) => {
 			for (let s of scriptTags)
@@ -74,18 +71,19 @@
 						tag.remove();
 						tag.addEventListener('beforescriptexecute', e => e.preventDefault()); // firefox fix
 						s.tag = document.createElement('script');
-						if (!tag.src) s.tag.innerHTML = tag.innerHTML;
+						if (tag.src) $.get(tag.src, d => (s.text = d), 'text');
+						else s.text = tag.innerHTML;
 						waitForTextLoad(s);
 					}
 				}
 		});
 		MO.observe(document.documentElement, { childList: true, subtree: true });
 		let waitForTextLoad = function (s) {
-			if (s.src)
-				if (!s.text) { setTimeout(_ => waitForTextLoad(s), 0); return; }
-				else s.tag.innerHTML = s.text;
-			else s.text = s.tag.innerHTML;
-			finish(s);
+			if (s.text) {
+				s.tag.innerHTML = s.text;
+				finish(s);
+			}
+			else setTimeout(_ => waitForTextLoad(s), 0);
 		};
 		let finish = function (s) {
 			cardboard.emit(`loadScript${s.name}`, s.tag);
