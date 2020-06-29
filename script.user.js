@@ -1,11 +1,16 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      2.0.4
+// @version      3.0.0
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
-// @match        https://play.boxcritters.com/*
+// @match        https://boxcritters.com/play/
+// @match        https://boxcritters.com/play/?*
+// @match        https://boxcritters.com/play/#*
+// @match        https://boxcritters.com/play/index.html
+// @match        https://boxcritters.com/play/index.html?*
+// @match        https://boxcritters.com/play/index.html#*
 // @grant        none
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://github.com/sarpnt/joinFunction/raw/master/script.js
@@ -17,7 +22,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const VERSION = [2, 0, 4];
+	const VERSION = [3, 0, 0];
 
 	function versionCompare(a, b) {
 		for (let i in a) {
@@ -51,12 +56,16 @@
 		let scriptTags = [
 			{ name: "Client", selector: `src^="/lib/client.min.js"`, src: '/lib/client.min.js', state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
 			//{ name: "Boot", selector: `src^="/lib/boot.min.js"`, src: '/lib/boot.min.js', state: 0, },
-			{ name: "Login", src: '/scripts/login.js', state: 0, },
+			//{ name: "Login", src: '/scripts/login.js', state: 0, },
 			{ name: "Index", src: 'index.js', state: 0, },
-			{ name: "UnityProgress", src: '/games/cardgame3/TemplateData/UnityProgress.js', state: 0, },
-			{ name: "UnityLoader", src: '/games/cardgame3/Build/UnityLoader.js', state: 0, },
-			{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerHTML)), state: 0, },
+			//{ name: "UnityProgress", src: '/games/cardgame3/TemplateData/UnityProgress.js', state: 0, },
+			//{ name: "UnityLoader", src: '/games/cardgame3/Build/UnityLoader.js', state: 0, },
+			//{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerHTML)), state: 0, },
+			{ name: "Modal", selector: _ => Array.from(document.scripts).find(e => /var\smodalElement/.exec(e.innerHTML)), state: 0, },
 		];
+		for (let s of scriptTags)
+			if (s.src)
+				$.get(s.src, d => (s.guessedText = d), 'text');
 
 		let MO = new MutationObserver((m, o) => {
 			for (let s of scriptTags)
@@ -69,43 +78,66 @@
 
 					if (tag) {
 						tag.remove();
+						s.state = 1;
 						tag.addEventListener('beforescriptexecute', e => e.preventDefault()); // firefox fix
 						s.tag = document.createElement('script');
-						if (tag.src) $.get(tag.src, d => (s.text = d), 'text');
-						else s.text = tag.innerHTML;
-						waitForTextLoad(s);
+
+						let textSelector = 'text';
+						if (tag.src)
+							if (tag.src != s.src)
+								$.get(tag.src, d => (s.text = d), 'text');
+							else
+								textSelector = 'guessedText';
+						else
+							s.text = tag.innerHTML;
+						waitForTextLoad(s, textSelector);
 					}
 				}
 		});
 		MO.observe(document.documentElement, { childList: true, subtree: true });
-		let waitForTextLoad = function (s) {
-			if (s.text) {
-				s.tag.innerHTML = s.text;
+		let waitForTextLoad = function (s, ts) {
+			if (s[ts]) {
+				s.tag.innerHTML = s[ts];
 				finish(s);
 			}
-			else setTimeout(_ => waitForTextLoad(s), 0);
+			else setTimeout(_ => waitForTextLoad(...arguments), 0);
 		};
 		let finish = function (s) {
 			cardboard.emit(`loadScript${s.name}`, s.tag);
 
-			s.state = 1;
+			s.state = 2;
 
-			if (Object.values(scriptTags).find(e => !e.state) == undefined) {
-				MO.disconnect();
-				cardboard.emit('loadScripts');
-				for (let s of scriptTags) {
+			if (Object.values(scriptTags).every(e => e.state >= 2))
+				runScripts();
+		};
+		function runScripts() {
+			MO.disconnect();
+			cardboard.emit('loadScripts');
+			for (let s of scriptTags)
+				if (s.state == 2) {
 					document.documentElement.appendChild(s.tag);
-					s.state = 2;
+					s.state = 3;
 					cardboard.emit(`runScript${s.name}`, s.tag);
 				}
-				cardboard.emit('runScripts');
-			}
-		};
+			cardboard.emit('runScripts');
+		}
 
 		let pageLoadDebugger = function () {
+			let run = false;
 			for (let t of scriptTags)
-				if (t.state != 2)
-					console.error(`Cardboard: Script event issues!`, t);
+				switch (t.state) {
+					case 0:
+						console.error(`Cardboard: Script event issues! Couldn't find`, t);
+						run = true;
+						break;
+					case 1:
+						console.warn(`Cardboard: Script not ran in time! (Not all script srcs finished loading) May have compatibility issues`, t);
+						break;
+					//case 2:
+					//	console.error(`Cardboard: Script src found but not ran? Needs to be fixed`, t);
+					//	run = true;
+				}
+			if (run) runScripts();
 		};
 		window.addEventListener('load', _ => setTimeout(pageLoadDebugger, 0));
 
@@ -173,10 +205,10 @@
 				0));
 	});
 
-	cardboard.on('worldSocketCreated', function (w) {
-		w.socket.on('login', _ =>
+	cardboard.on('worldSocketCreated', function (w, s) {
+		s.on('login', _ =>
 			setTimeout(
-				_ => cardboard.emit('login', w),
+				_ => cardboard.emit('login', w, s),
 				0));
 	});
 
