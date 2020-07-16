@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      3.0.0
+// @version      3.1.0
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -47,8 +47,16 @@
 	cardboard.version = VERSION;
 
 	if (document.body) { // bad loading detector
-		console.log(document);
-		alert(`Cardboard wasn't injected in time! Try refreshing or enabling instant script injection in tampermonkey settings.`);
+		console.log(document.cloneNode(document.documentElement));
+		alert(`Cardboard wasn't injected in time!
+1) Try refreshing to see if this fixes the issue
+2) Enable instant script injection in tampermonkey settings:
+	- Click tampermonkey's icon, a menu should appear
+	- Go to dashboard
+	- Select the settings tab near the top right
+	- Set config mode to advanced (first setting)
+	- Set inject mode to instant (scroll to the bottom of the page)`
+		);
 		return;
 	}
 
