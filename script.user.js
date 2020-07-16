@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      3.1.1
+// @version      3.1.2
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -22,7 +22,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const VERSION = [3, 1, 1];
+	const VERSION = [3, 1, 2];
 
 	function versionCompare(a, b) {
 		for (let i in a) {
@@ -101,7 +101,7 @@
 								textSelector = 'guessedText';
 							waitForTextLoad(s, textSelector);
 						} else {
-							s.text = tag.innerHTML;
+							s.tag.innerHTML = s.text = tag.innerHTML;
 							finish(s);
 						}
 					}
