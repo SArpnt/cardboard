@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      3.1.0
+// @version      3.1.1
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -22,7 +22,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const VERSION = [3, 0, 0];
+	const VERSION = [3, 1, 1];
 
 	function versionCompare(a, b) {
 		for (let i in a) {
@@ -46,31 +46,39 @@
 	let cardboard = new EventHandler; // not strict yet
 	cardboard.version = VERSION;
 
-	if (document.body) { // bad loading detector
-		console.log(document.cloneNode(document.documentElement));
-		alert(`Cardboard wasn't injected in time!
-1) Try refreshing to see if this fixes the issue
-2) Enable instant script injection in tampermonkey settings:
-	- Click tampermonkey's icon, a menu should appear
-	- Go to dashboard
-	- Select the settings tab near the top right
-	- Set config mode to advanced (first setting)
-	- Set inject mode to instant (scroll to the bottom of the page)`
-		);
-		return;
-	}
-
 	{ // scriptHandling
+		let getScript = function (s) {
+			if (s.selector)
+				if (typeof s.selector == 'string')
+					return document.querySelector(`script[${s.selector}]`);
+				else
+					return s.selector();
+			else
+				return document.querySelector(`script[src="${s.src}"]`);
+		};
 		let scriptTags = [
 			{ name: "Client", selector: `src^="/lib/client.min.js"`, src: '/lib/client.min.js', state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
 			//{ name: "Boot", selector: `src^="/lib/boot.min.js"`, src: '/lib/boot.min.js', state: 0, },
 			//{ name: "Login", src: '/scripts/login.js', state: 0, },
 			{ name: "Index", src: 'index.js', state: 0, },
-			//{ name: "UnityProgress", src: '/games/cardgame3/TemplateData/UnityProgress.js', state: 0, },
-			//{ name: "UnityLoader", src: '/games/cardgame3/Build/UnityLoader.js', state: 0, },
 			//{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerHTML)), state: 0, },
 			{ name: "Modal", selector: _ => Array.from(document.scripts).find(e => /var\smodalElement/.exec(e.innerHTML)), state: 0, },
 		];
+		if (document.scripts)
+			for (let s of scriptTags)
+				if (getScript(s)) {
+					alert(`Cardboard wasn't injected in time!
+					1) Try refreshing to see if this fixes the issue
+					2) Enable instant script injection in tampermonkey settings:
+						- Click tampermonkey's icon, a menu should appear
+						- Go to dashboard
+						- Select the settings tab near the top right
+						- Set config mode to advanced (first setting)
+						- Set inject mode to instant (scroll to the bottom of the page)`
+					);
+					console.log(document.cloneNode(document.documentElement));
+					throw `Cardboard: not injected in time`;
+				}
 		for (let s of scriptTags)
 			if (s.src)
 				$.get(s.src, d => (s.guessedText = d), 'text');
@@ -78,12 +86,7 @@
 		let MO = new MutationObserver((m, o) => {
 			for (let s of scriptTags)
 				if (!s.state) {
-					var tag;
-					if (s.selector)
-						if (typeof s.selector == 'string') tag = document.querySelector(`script[${s.selector}]`);
-						else tag = s.selector();
-					else tag = document.querySelector(`script[src="${s.src}"]`);
-
+					let tag = getScript(s);
 					if (tag) {
 						tag.remove();
 						s.state = 1;
@@ -91,14 +94,16 @@
 						s.tag = document.createElement('script');
 
 						let textSelector = 'text';
-						if (tag.src)
+						if (tag.src) {
 							if (tag.src != s.src)
 								$.get(tag.src, d => (s.text = d), 'text');
 							else
 								textSelector = 'guessedText';
-						else
+							waitForTextLoad(s, textSelector);
+						} else {
 							s.text = tag.innerHTML;
-						waitForTextLoad(s, textSelector);
+							finish(s);
+						}
 					}
 				}
 		});
@@ -108,7 +113,7 @@
 				s.tag.innerHTML = s[ts];
 				finish(s);
 			}
-			else setTimeout(_ => waitForTextLoad(...arguments), 0);
+			else setTimeout(_ => waitForTextLoad(...arguments), 0); // this is extremely bad and should be an event on the $.get
 		};
 		let finish = function (s) {
 			cardboard.emit(`loadScript${s.name}`, s.tag);
