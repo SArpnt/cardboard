@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      4.0.0
+// @version      4.0.1
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -22,7 +22,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js';
 
-	const VERSION = [4, 0, 0];
+	const VERSION = [4, 0, 1];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (window.cardboard) {
@@ -130,7 +130,7 @@ Try reinstalling active mods.`
 				}
 		for (let s of scriptTags)
 			if (s.src)
-				ajax(s.src, d => (s.guessedText = d));
+				s.ajax = ajax(s.src, d => { s.text = d; if (s.state == 1) finish(s); });
 
 		let MO = new MutationObserver((m, o) => {
 			for (let s of scriptTags)
@@ -142,29 +142,22 @@ Try reinstalling active mods.`
 						tag.addEventListener('beforescriptexecute', e => e.preventDefault()); // firefox fix
 						s.tag = document.createElement('script');
 
-						let textSelector = 'text';
 						if (tag.src) {
-							if (tag.src != s.src)
-								ajax(tag.src, d => (s.text = d));
-							else
-								textSelector = 'guessedText';
-							waitForTextLoad(s, textSelector);
+							if (tag.src != s.src) {
+								s.ajax.abort();
+								s.ajax = ajax(tag.src, d => { s.text = d; finish(s); });
+							}
 						} else {
-							s.tag.innerHTML = s.text = tag.innerHTML;
+							s.text = tag.innerHTML;
 							finish(s);
 						}
 					}
 				}
 		});
 		MO.observe(document.documentElement, { childList: true, subtree: true });
-		let waitForTextLoad = function (s, ts) {
-			if (s[ts]) {
-				s.tag.innerHTML = s[ts];
-				finish(s);
-			}
-			else setTimeout(_ => waitForTextLoad(...arguments), 0); // this is extremely bad and should be an event on ajax
-		};
+
 		let finish = function (s) {
+			s.tag.innerHTML = s.text;
 			cardboard.emit(`loadScript${s.name}`, s.tag);
 
 			s.state = 2;
@@ -274,6 +267,6 @@ Try reinstalling active mods.`
 				0));
 	});
 
-	if (IS_USERSCRIPT) cardboard.register('cardboard')
+	if (IS_USERSCRIPT) cardboard.register('cardboard');
 	window.cardboard = cardboard;
 })();
