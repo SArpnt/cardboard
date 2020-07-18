@@ -5,15 +5,19 @@ modding api
 ```js
 // @run-at       document-start
 
-// @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
+
+cardboard.register(MODNAME)
 ```
 
 creates variable cardboard containing useful things.\
 \
 cardboard.version stores version of cardboard\
+\
+cardboard.mods stores mods and mod data\
+do a setTimeout of 0 before checking otherwise not all mods may appear\
 \
 cardboard.getPlayer\
 all types:

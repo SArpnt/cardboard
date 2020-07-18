@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cardboard
 // @namespace    http://tampermonkey.net/
-// @version      3.1.2
+// @version      4.0.0
 // @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
@@ -12,39 +12,88 @@
 // @match        https://boxcritters.com/play/index.html?*
 // @match        https://boxcritters.com/play/index.html#*
 // @grant        none
-// @require      https://code.jquery.com/jquery-3.5.1.min.js
-// @require      https://github.com/sarpnt/joinFunction/raw/master/script.js
-// @require      https://github.com/sarpnt/EventHandler/raw/master/script.js
+// @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
+// @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // ==/UserScript==
 
 (function () {
-	if (typeof $ == 'undefined') throw '@require https://code.jquery.com/jquery-3.5.1.min.js';
+	'use strict';
+
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
 
-	const VERSION = [3, 1, 2];
-
-	function versionCompare(a, b) {
-		for (let i in a) {
-			let c = (a < b) - (b < a);
-			if (c) return c;
-		}
-		return 0;
-	};
+	const VERSION = [4, 0, 0];
+	const IS_USERSCRIPT = typeof GM_info != 'undefined';
 
 	if (window.cardboard) {
-		console.log("Cardboard already running!");
-		if (versionCompare(window.cardboard.version, VERSION) == 1) {
-			console.log("Existing is lower version, replacing");
-			cardboard.emit('cardboardShutdown');
-		} else {
-			console.log("Existing is higher/same version, stopping");
-			return;
+		window.cardboard.loadCount++;
+		let comp = (a, b) => (a < b) - (b < a);
+		switch (comp(window.cardboard.version, VERSION)) {
+			case 1: // this is newer
+				if (window.cardboard.mods) {
+					let m = Object.keys(window.cardboard.mods);
+					alert(
+						`The mod${m.length == 1 ? 's' : ''} ${
+						m.map(a => `'${a}'`).join(',')
+						} ${m.length == 1 ? 'is' : 'are'} using an older version of cardboard, Try reinstalling th${m.length == 1 ? 'is' : 'ese'} mod`
+					);
+				} else
+					alert(`Unknown mods are using an older version of cardboard, Try reinstalling all active mods`);
+				return;
+			case -1: // this is older
+				let o = window.cardboard.register;
+				window.cardboard.register = function (mod) {
+					alert(`The mod '${mod}' using an older version of cardboard, Try reinstalling this mod`);
+					window.cardboard.register = o;
+				};
+				return;
 		}
+		return;
 	}
 
-	let cardboard = new EventHandler; // not strict yet
+	let cardboard = new EventHandler([
+		'loadScripts',
+		'runScripts',
+		'worldCreated',
+		'worldSocketCreated',
+		'worldStageCreated',
+		'worldManifestCreated',
+		'clientCreated',
+		'joinRoom',
+		'login',
+	], false);
 	cardboard.version = VERSION;
+
+	// register system
+	cardboard.mods = {};
+	cardboard.loadCount = 1;
+	cardboard.registerCount = 0 + IS_USERSCRIPT;
+	cardboard.register = function (mod) {
+		if (typeof mod != 'string') throw new TypeError(`Parameter 1 must be of type 'string'`);
+		cardboard.registerCount++;
+		return cardboard.mods[mod] = {};
+	};
+	setTimeout(function () {
+		if (cardboard.loadCount != cardboard.registerCount)
+			alert(`Mods didn't register! Cardboard has been loaded ${cardboard.loadCount} times, but ${cardboard.registerCount} mods registered.
+Try reinstalling active mods.`
+			);
+	}, 0);
+
+	let ajax = function (url, callback, stopCache = false) {
+		if (stopCache)
+			url += (url.includes('?') ? '&' : '?') + (new Date).getTime();
+		let x = new XMLHttpRequest;
+		x.onreadystatechange = e => callback && x.readyState == 4 && x.status == 200 && callback(x.response, x, e);
+		try {
+			x.open('GET', url, false);
+			x.send();
+		} catch (e) {
+			x.open('GET', url, true);
+			x.send();
+		}
+		return x;
+	};
 
 	{ // scriptHandling
 		let getScript = function (s) {
@@ -81,7 +130,7 @@
 				}
 		for (let s of scriptTags)
 			if (s.src)
-				$.get(s.src, d => (s.guessedText = d), 'text');
+				ajax(s.src, d => (s.guessedText = d));
 
 		let MO = new MutationObserver((m, o) => {
 			for (let s of scriptTags)
@@ -96,7 +145,7 @@
 						let textSelector = 'text';
 						if (tag.src) {
 							if (tag.src != s.src)
-								$.get(tag.src, d => (s.text = d), 'text');
+								ajax(tag.src, d => (s.text = d));
 							else
 								textSelector = 'guessedText';
 							waitForTextLoad(s, textSelector);
@@ -113,7 +162,7 @@
 				s.tag.innerHTML = s[ts];
 				finish(s);
 			}
-			else setTimeout(_ => waitForTextLoad(...arguments), 0); // this is extremely bad and should be an event on the $.get
+			else setTimeout(_ => waitForTextLoad(...arguments), 0); // this is extremely bad and should be an event on ajax
 		};
 		let finish = function (s) {
 			cardboard.emit(`loadScript${s.name}`, s.tag);
@@ -154,10 +203,10 @@
 		};
 		window.addEventListener('load', _ => setTimeout(pageLoadDebugger, 0));
 
-		cardboard.on('cardboardShutdown', function () {
+		/*cardboard.on('cardboardShutdown', function () {
 			MO.disconnect();
 			window.removeEventListener('load', pageLoadDebugger);
-		});
+		});*/
 	}
 
 	{ // getPlayerCrumb
