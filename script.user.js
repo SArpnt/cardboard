@@ -19,11 +19,11 @@
 (function () {
 	'use strict';
 
-	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/joinFunction/script.min.js';
-	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js';
+	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js';
+	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js';
 
 	const VERSION = [4, 0, 0];
-	const IS_USERSCRIPT = typeof GM_info != 'undefined';
+	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (window.cardboard) {
 		window.cardboard.loadCount++;
@@ -67,7 +67,7 @@
 	// register system
 	cardboard.mods = {};
 	cardboard.loadCount = 1;
-	cardboard.registerCount = 0 + IS_USERSCRIPT;
+	cardboard.registerCount = 0;
 	cardboard.register = function (mod) {
 		if (typeof mod != 'string') throw new TypeError(`Parameter 1 must be of type 'string'`);
 		cardboard.registerCount++;
@@ -274,5 +274,6 @@ Try reinstalling active mods.`
 				0));
 	});
 
+	if (IS_USERSCRIPT) cardboard.register('cardboard')
 	window.cardboard = cardboard;
 })();
