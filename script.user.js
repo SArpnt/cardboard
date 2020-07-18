@@ -65,7 +65,6 @@
 	cardboard.version = VERSION;
 
 	// register system
-	console.log(IS_USERSCRIPT);
 	cardboard.mods = {};
 	cardboard.loadCount = 1;
 	cardboard.registerCount = 0 + IS_USERSCRIPT;
