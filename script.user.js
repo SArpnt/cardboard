@@ -1,17 +1,22 @@
 // ==UserScript==
 // @name         Cardboard
-// @namespace    http://tampermonkey.net/
-// @version      4.0.1
-// @run-at       document-start
 // @description  Modding api
 // @author       SArpnt
+// @version      4.1.0
+// @homepage     https://boxcrittersmods.ga/projects/cardboard/
+// @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
+// @downloadURL  https://github.com/SArpnt/cardboard/raw/master/script.user.js
+// @supportURL   https://github.com/SArpnt/cardboard/issues
+// @icon         https://github.com/SArpnt/cardboard/raw/master/icon32.png
+// @icon64       https://github.com/SArpnt/cardboard/raw/master/icon64.png
+// @run-at       document-start
+// @grant        none
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
 // @match        https://boxcritters.com/play/index.html
 // @match        https://boxcritters.com/play/index.html?*
 // @match        https://boxcritters.com/play/index.html#*
-// @grant        none
 // @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // ==/UserScript==
@@ -22,7 +27,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js';
 
-	const VERSION = [4, 0, 1];
+	const VERSION = [4, 1, 0];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (window.cardboard) {
@@ -63,14 +68,15 @@
 		'login',
 	], false);
 	cardboard.version = VERSION;
+	window.cardboard = cardboard;
 
 	// register system
 	cardboard.mods = {};
 	cardboard.loadCount = 1;
 	cardboard.registerCount = 0;
-	cardboard.register = function (mod) {
+	cardboard.register = function (mod, count = true) {
 		if (typeof mod != 'string') throw new TypeError(`Parameter 1 must be of type 'string'`);
-		cardboard.registerCount++;
+		if (count) cardboard.registerCount++;
 		return cardboard.mods[mod] = {};
 	};
 	setTimeout(function () {
@@ -126,7 +132,7 @@ Try reinstalling active mods.`
 						- Set inject mode to instant (scroll to the bottom of the page)`
 					);
 					console.log(document.cloneNode(document.documentElement));
-					throw `Cardboard: not injected in time`;
+					return;
 				}
 		for (let s of scriptTags)
 			if (s.src)
@@ -195,11 +201,6 @@ Try reinstalling active mods.`
 			if (run) runScripts();
 		};
 		window.addEventListener('load', _ => setTimeout(pageLoadDebugger, 0));
-
-		/*cardboard.on('cardboardShutdown', function () {
-			MO.disconnect();
-			window.removeEventListener('load', pageLoadDebugger);
-		});*/
 	}
 
 	{ // getPlayerCrumb
@@ -268,5 +269,4 @@ Try reinstalling active mods.`
 	});
 
 	if (IS_USERSCRIPT) cardboard.register('cardboard');
-	window.cardboard = cardboard;
 })();
