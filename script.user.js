@@ -69,6 +69,8 @@
 	], false);
 	cardboard.version = VERSION;
 	window.cardboard = cardboard;
+	
+	function Mod(name) {this.name=name};
 
 	// register system
 	cardboard.mods = {};
@@ -77,7 +79,7 @@
 	cardboard.register = function (mod, count = true) {
 		if (typeof mod != 'string') throw new TypeError(`Parameter 1 must be of type 'string'`);
 		if (count) cardboard.registerCount++;
-		return cardboard.mods[mod] = {};
+		return cardboard.mods[mod] = new Mod(mod);
 	};
 	setTimeout(function () {
 		if (cardboard.loadCount != cardboard.registerCount)
