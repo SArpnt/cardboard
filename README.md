@@ -9,7 +9,7 @@ modding api
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
 
-cardboard.register(MODNAME)
+cardboard.register(MODNAME, /*optional*/ {data})
 ```
 
 creates variable cardboard containing useful things.\
@@ -17,7 +17,9 @@ creates variable cardboard containing useful things.\
 cardboard.version stores version of cardboard\
 \
 cardboard.mods stores mods and mod data\
-do a setTimeout of 0 before checking otherwise not all mods may appear\
+use allRequiredModsRegistered event to check when all mods that require cardboard have registered\
+use modRegistered to check when a new mod registers\
+use unrequiredModRegistered to check when a new mod that doesn't require cardboard registers\
 \
 cardboard.getPlayer\
 all types:
@@ -31,6 +33,10 @@ all types:
 cardboard contains an [EventHandler](https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js)\
 events:
 
+- modRegistered
+- unrequiredModRegistered
+- requiredModRegistered
+- allRequiredModsRegistered
 - loadScripts
 - runScripts
 - loadScript*\[scriptname\]*(script innerHTML)
