@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.0.0
+// @version      5.1.0
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -28,7 +28,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js';
 
-	const VERSION = [5, 0, 0];
+	const VERSION = [5, 1, 0];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (window.cardboard) {
@@ -51,7 +51,7 @@
 				window.cardboard.register = function (mod) {
 					alert(`The mod '${mod}' using an older version of cardboard, please reinstall this mod`);
 					window.cardboard.register = o;
-					o.apply(window.cardboard, arguments);
+					return o.apply(window.cardboard, arguments);
 				};
 				return;
 		}
@@ -120,14 +120,16 @@ Try reinstalling active mods.`
 			if (s.selector)
 				if (typeof s.selector == 'string')
 					return document.querySelector(`script[${s.selector}]`);
+				else if (s.selector.constructor.name == 'RegExp')
+					return Array.from(document.scripts).find(e => s.selector.test(e.src));
 				else
 					return s.selector();
 			else
 				return document.querySelector(`script[src="${s.src}"]`);
 		};
 		let scriptTags = [
-			{ name: "Client", selector: `src^="../lib/client.min.js"`, src: '../lib/client.min.js', state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
-			{ name: "Boot", selector: `src^="../lib/boot.min.js"`, src: '../lib/boot.min.js', state: 0, },
+			{ name: "Client", selector: /\/lib\/client(-\d+)?\.min\.js/, src: true, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
+			{ name: "Boot", selector: /\/lib\/boot(-\d+)?\.min\.js/, src: '../lib/boot.min.js', state: 0, },
 			//{ name: "Login", src: '/scripts/login.js', state: 0, },
 			{ name: "Hero", src: 'hero.js', state: 0, },
 			{ name: "Shop", src: 'shop.js', state: 0, },
@@ -151,7 +153,7 @@ Try reinstalling active mods.`
 					return;
 				}
 		for (let s of scriptTags)
-			if (s.src)
+			if (typeof s.src == 'string')
 				s.ajax = ajax(s.src, d => { s.text = d; if (s.state == 1) finish(s); });
 
 		let MO = new MutationObserver((m, o) => {
@@ -166,7 +168,8 @@ Try reinstalling active mods.`
 
 						if (tag.src) {
 							if (tag.src != s.src) {
-								s.ajax.abort();
+								if (s.ajax)
+									s.ajax.abort();
 								s.ajax = ajax(tag.src, d => { s.text = d; finish(s); });
 							}
 						} else {
