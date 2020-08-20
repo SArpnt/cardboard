@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.1.0
+// @version      5.1.1
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -28,7 +28,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js';
 
-	const VERSION = [5, 1, 0];
+	const VERSION = [5, 1, 1];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (window.cardboard) {
@@ -121,21 +121,21 @@ Try reinstalling active mods.`
 				if (typeof s.selector == 'string')
 					return document.querySelector(`script[${s.selector}]`);
 				else if (s.selector.constructor.name == 'RegExp')
-					return Array.from(document.scripts).find(e => s.selector.test(e.src));
+					return Array.from(document.scripts).find(e => s.selector.test(s.src ? e.src : e.innerHTML));
 				else
 					return s.selector();
 			else
 				return document.querySelector(`script[src="${s.src}"]`);
 		};
 		let scriptTags = [
-			{ name: "Client", selector: /\/lib\/client(-\d+)?\.min\.js/, src: true, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
-			{ name: "Boot", selector: /\/lib\/boot(-\d+)?\.min\.js/, src: '../lib/boot.min.js', state: 0, },
+			{ name: "Client", selector: /\/lib\/client-?\d*(\.min)?\.js$/, src: true, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
+			{ name: "Boot", selector: /\/lib\/boot-?\d*(\.min)?\.js$/, src: '../lib/boot.min.js', state: 0, },
 			//{ name: "Login", src: '/scripts/login.js', state: 0, },
-			{ name: "Hero", src: 'hero.js', state: 0, },
-			{ name: "Shop", src: 'shop.js', state: 0, },
-			{ name: "Index", src: 'index.js', state: 0, },
-			//{ name: "ShowGame", selector: _ => Array.from(document.scripts).find(e => /showGame/.exec(e.innerHTML)), state: 0, },
-			//{ name: "Modal", selector: _ => Array.from(document.scripts).find(e => /var\smodalElement/.exec(e.innerHTML)), state: 0, },
+			{ name: "Hero", selector: /hero-?\d*(\.min)?\.js$/, src: 'hero.js', state: 0, },
+			{ name: "Shop", selector: /shop-?\d*(\.min)?\.js$/, src: 'shop.js', state: 0, },
+			{ name: "Index", selector: /index-?\d*(\.min)?\.js$/, src: 'index2.js', state: 0, },
+			//{ name: "ShowGame", selector: /showGame/, state: 0, },
+			//{ name: "Modal", selector: /var\smodalElement/, state: 0, },
 		];
 		if (document.scripts)
 			for (let s of scriptTags)
