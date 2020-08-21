@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.1.1
+// @version      5.2.0
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -28,7 +28,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js';
 
-	const VERSION = [5, 1, 1];
+	const VERSION = [5, 2, 0];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (window.cardboard) {
@@ -128,12 +128,15 @@ Try reinstalling active mods.`
 				return document.querySelector(`script[src="${s.src}"]`);
 		};
 		let scriptTags = [
-			{ name: "Client", selector: /\/lib\/client-?\d*(\.min)?\.js$/, src: true, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
-			{ name: "Boot", selector: /\/lib\/boot-?\d*(\.min)?\.js$/, src: '../lib/boot.min.js', state: 0, },
-			//{ name: "Login", src: '/scripts/login.js', state: 0, },
-			{ name: "Hero", selector: /hero-?\d*(\.min)?\.js$/, src: 'hero.js', state: 0, },
-			{ name: "Shop", selector: /shop-?\d*(\.min)?\.js$/, src: 'shop.js', state: 0, },
-			{ name: "Index", selector: /index-?\d*(\.min)?\.js$/, src: 'index2.js', state: 0, },
+			{ name: "Bootstrap", selector: /vendor\/js\/bootstrap(\.min)?\.js$/, src: true, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
+			{ name: "Createjs", selector: /vendor\/js\/createjs(\.min)?\.js$/, src: true, state: 0, },
+			{ name: "SocketIo", selector: /vendor\/js\/socket\.io(\.min)?\.js$/, src: true, state: 0, },
+			{ name: "Client", selector: /(lib\/)?client(-?\d+)?(\.min)?\.js$/, src: true, state: 0, },
+			{ name: "Boot", selector: /(lib\/)?boot(-?\d+)?(\.min)?\.js$/, src: '../lib/boot.min.js', state: 0, },
+			//{ name: "Login", selector: /(lib\/)?login(-?\d+)?(\.min)?\.js$/, src: 'login.js', state: 0, },
+			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', state: 0, },
+			{ name: "Shop", selector: /(lib\/)?shop(-?\d+)?(\.min)?\.js$/, src: 'shop.js', state: 0, },
+			{ name: "Index", selector: /(lib\/)?index(-?\d+)?(\.min)?\.js$/, src: 'index2.js', state: 0, },
 			//{ name: "ShowGame", selector: /showGame/, state: 0, },
 			//{ name: "Modal", selector: /var\smodalElement/, state: 0, },
 		];
