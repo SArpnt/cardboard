@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.3.0
+// @version      5.3.1
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -28,7 +28,7 @@
 	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js';
 	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js';
 
-	const VERSION = [5, 3, 0];
+	const VERSION = [5, 3, 1];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (window.cardboard) {
@@ -133,22 +133,22 @@ Try reinstalling active mods.`
 				return document.querySelector(`script[src="${s.src}"]`);
 		};
 		let scriptTags = [
-			{ name: "Bootstrap", selector: /vendor\/js\/bootstrap(\.min)?\.js$/, src: '../vendor/js/bootstrap.min.js', state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
-			{ name: "Createjs", selector: /vendor\/js\/createjs(\.min)?\.js$/, src: '../vendor/js/createjs.min.js', state: 0, },
-			{ name: "SocketIo", selector: /vendor\/js\/socket\.io(\.min)?\.js$/, src: '../vendor/js/socket.io.js', state: 0, },
-			{ name: "Client", selector: /(lib\/)?client(-?\d+)?(\.min)?\.js$/, src: true, state: 0, },
-			{ name: "Boot", selector: /(lib\/)?boot(-?\d+)?(\.min)?\.js$/, src: '../lib/boot.min.js', state: 0, },
+			{ name: "Bootstrap", selector: /vendor\/js\/bootstrap(\.min)?\.js$/, src: '../vendor/js/bootstrap.min.js', ranTest: _ => window.bootstrap, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
+			{ name: "Createjs", selector: /vendor\/js\/createjs(\.min)?\.js$/, src: '../vendor/js/createjs.min.js', ranTest: _ => window.createjs, state: 0, },
+			{ name: "SocketIo", selector: /vendor\/js\/socket\.io(\.min)?\.js$/, src: '../vendor/js/socket.io.js', ranTest: _ => window.io, state: 0, },
+			{ name: "Client", selector: /(lib\/)?client(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => window.client, state: 0, },
+			{ name: "Boot", selector: /(lib\/)?boot(-?\d+)?(\.min)?\.js$/, src: '../lib/boot.min.js', ranTest: _ => window.boot, state: 0, },
 			//{ name: "Login", selector: /(lib\/)?login(-?\d+)?(\.min)?\.js$/, src: 'login.js', state: 0, },
-			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', state: 0, },
-			{ name: "Shop", selector: /(lib\/)?shop(-?\d+)?(\.min)?\.js$/, src: 'shop.js', state: 0, },
-			{ name: "Index", selector: /(lib\/)?index(-?\d+)?(\.min)?\.js$/, src: true, state: 0, },
+			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', ranTest: _ => window.addHero, state: 0, },
+			{ name: "Shop", selector: /(lib\/)?shop(-?\d+)?(\.min)?\.js$/, src: 'shop.js', ranTest: _ => window.extra, state: 0, },
+			{ name: "Index", selector: /(lib\/)?index(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => window.init, state: 0, },
 			//{ name: "ShowGame", selector: /showGame/, state: 0, },
 			//{ name: "Modal", selector: /var\smodalElement/, state: 0, },
-			{ name: "Mobile", selector: /function\s+mobile/, state: 0, },
+			{ name: "Mobile", selector: /function\s+mobile/, ranTest: _ => window.mobile, state: 0, },
 		];
 		if (document.scripts)
 			for (let s of scriptTags)
-				if (getScript(s)) {
+				if (getScript(s) && (!s.ranTest || s.ranTest())) {
 					alert(`Cardboard wasn't injected in time!
 					1) Try refreshing to see if this fixes the issue
 					2) Enable instant script injection in tampermonkey settings:
