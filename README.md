@@ -41,12 +41,15 @@ events:
 - runScripts
 - loadScript*\[scriptname\]*(script innerHTML)
 - runScript*\[scriptname\]*
+  - Bootstrap
+  - Createjs
+  - SocketIo
   - Client
-  - Login
+  - Boot
+  - Hero
+  - Shop
   - Index
-  - UnityProgress
-  - UnityLoader
-  - ShowGame
+  - Mobile
 - clientCreated(client)
 - worldCreated(world)
 - worldSocketCreated(world, socket)
