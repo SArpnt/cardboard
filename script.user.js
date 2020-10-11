@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.3.1
+// @version      5.4.0
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -25,41 +25,48 @@
 (function () {
 	'use strict';
 
-	if (typeof joinFunction == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js';
-	if (typeof EventHandler == 'undefined') throw '@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js';
+	if (typeof joinFunction == 'undefined') throw `@require https://cdn.jsdelivr.net/gh/SArpnt/joinFunction/script.min.js`;
+	if (typeof EventHandler == 'undefined') throw `@require https://cdn.jsdelivr.net/gh/SArpnt/EventHandler/script.min.js`;
 
-	const VERSION = [5, 3, 1];
+	const uWindow = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
+
+	const VERSION = [5, 4, 0];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
-	if (window.cardboard) {
-		window.cardboard.loadCount++;
+	if (uWindow.cardboard) {
+		// register
+		if (uWindow.cardboard.awaitingReg)
+			uWindow.cardboard.unregistered.push(uWindow.cardboard.awaitingReg.script.name);
+		else if (uWindow.cardboard.awaitingReg == undefined)
+			alert(`The mod ${mod} loaded late!
+Contact the mod developer.`);
+
+		if (IS_USERSCRIPT)
+			uWindow.cardboard.awaitingReg = null;
+		else
+			uWindow.cardboard.awaitingReg = GM_info;
+
+		// version detection
 		let comp = (a, b) => (a < b) - (b < a);
-		switch (comp(window.cardboard.version, VERSION)) {
+		switch (comp(uWindow.cardboard.version, VERSION)) {
 			case 1: // this is newer
-				if (window.cardboard.mods) {
-					let m = Object.keys(window.cardboard.mods);
-					alert(
-						`The mod${m.length == 1 ? 's' : ''} ${
-						m.map(a => `'${a}'`).join(',')
-						} ${m.length == 1 ? 'is' : 'are'} using an older version of cardboard, please reinstall ${m.length == 1 ? 'this mod' : 'these mods'}`
-					);
+				if (uWindow.cardboard.mods) {
+					let m = Object.keys(uWindow.cardboard.mods);
+					alert(`The mod${m.length == 1 ? '' : 's'} ${m.map(a => `'${a}'`).join(',')} ${m.length == 1 ? 'is' : 'are'} using an older version of cardboard.
+Try reinstalling ${m.length == 1 ? 'this mod' : 'these mods'}.`);
 				} else
-					alert(`Unknown mods are using an older version of cardboard, Try reinstalling all active mods`);
+					alert(`Unknown mods are using an older version of cardboard.
+Try reinstalling all active mods.`);
 				break;
 			case -1: // this is older
-				let o = window.cardboard.register;
 				if (IS_USERSCRIPT)
-					alert(`The mod 'cardboard' is out of date, please update this mod`);
+					alert(`The mod 'Cardboard' (the userscript) is out of date.
+Update this mod.`);
 				else
-					window.cardboard.register = function (mod) {
-						alert(`The mod '${mod}' using an older version of cardboard, please reinstall this mod`);
-						window.cardboard.register = o;
-						return o.apply(window.cardboard, arguments);
-					};
+					alert(`The mod '${GM_info.script.name}' using an older version of cardboard.
+Try reinstalling this mod.`);
 				break;
 		}
-		if (IS_USERSCRIPT)
-			window.cardboard.registerCount++;
 		return;
 	}
 
@@ -67,10 +74,12 @@
 		'modRegistered',
 		'requiredModRegistered',
 		'unrequiredModRegistered',
-		'allRequiredModsRegistered',
+		'allModsRegistered',
 
 		'loadScripts',
 		'runScripts',
+		'loadScript',
+		'runScript',
 
 		'worldCreated',
 		'worldSocketCreated',
@@ -81,27 +90,61 @@
 		'login',
 	], false);
 	cardboard.version = VERSION;
-	window.cardboard = cardboard;
+	uWindow.cardboard = cardboard;
 
 	// register system
 	cardboard.mods = {};
-	cardboard.loadCount = 1;
-	cardboard.registerCount = 0;
-	cardboard.register = function (mod, data = {}, count = true) {
-		if (typeof mod != 'string') throw new TypeError(`Parameter 1 must be of type 'string'`);
+	cardboard.awaitingReg = GM_info;
+	cardboard.unregistered = [];
+	cardboard.register = function (mod, data = {}, req = true, gmInfo) {
+		if (typeof mod != 'string' || !mod) throw new TypeError(`Parameter 1 must be of type 'string'`);
+		if (!/^[a-z_$][\w$]*$/i.test(mod)) throw new TypeError(`Invalid characters in modname (must be valid for dot notation)`);
 		if (typeof data != 'object' || data === null) throw new TypeError(`Parameter 2 must be of type 'object'`);
-		if (count) cardboard.registerCount++;
+		if (typeof gmInfo != 'undefined' && (
+			typeof gmInfo == 'object' || gmInfo === null ||
+			!gmInfo.script || !gmInfo.script.name)) throw new TypeError(`Parameter 4 must be of type GM_info`);
+
+		if (req && !cardboard.awaitingReg) {
+			if (cardboard.mods[mod]) {
+				alert(`The mod ${(cardboard.mods[mod].GM_info && cardboard.mods[mod].GM_info) || mod} registered twice!
+Contact the mod creator.`);
+				return;
+			} else {
+				alert(`The mod ${mod} registered without cardboard detecting it beforehand!
+Contact the mod creator.`);
+			}
+		}
+		if (cardboard.mods[mod]) {
+			alert(`The mod '${(cardboard.awaitingReg && cardboard.awaitingReg.script.name) ||
+				(gmInfo && gmInfo.script.name) ||
+				mod}' is conflicting with '${mod}'!
+Either don't use these mods together or contact the mod creator.`);
+			return;
+		}
+		if (req) { // assign gm_info
+			data.GM_info = cardboard.awaitingReg;
+			cardboard.awaitingReg = null;
+		} else
+			data.GM_info = gmInfo;
+
 		cardboard.mods[mod] = data;
 		cardboard.emit('modRegistered', mod, data, cardboard.mods);
-		cardboard.emit(count ? 'requiredModRegistered' : 'unrequiredModRegistered', mod, data, cardboard.mods);
+		cardboard.emit(req ? 'requiredModRegistered' : 'unrequiredModRegistered', mod, data, cardboard.mods);
 		return data;
 	};
 	setTimeout(function () {
-		if (cardboard.loadCount != cardboard.registerCount)
-			alert(`Mods didn't register! Cardboard has been loaded ${cardboard.loadCount} time(s), but ${cardboard.registerCount} mod(s) registered.
-Try reinstalling active mods.`
-			);
-		cardboard.emit('allRequiredModsRegistered', cardboard.mods);
+		if (cardboard.awaitingReg)
+			cardboard.unregistered.push(cardboard.awaitingReg.script.name);
+		delete cardboard.awaitingReg;
+
+		if (cardboard.unregistered.length)
+			alert(`The mod${cardboard.unregistered.length == 1 ? '' : 's'} ${cardboard.unregistered} didn't register!
+Try reinstalling the${cardboard.unregistered.length == 1 ? 'is mod' : 'ese mods'}.`);
+		cardboard.register = function (mod) {
+			alert(`The mod ${mod} registered late!
+Contact the mod developer.`);
+		};
+		cardboard.emit('allModsRegistered', cardboard.mods);
 	}, 0);
 	cardboard.register('cardboard', cardboard, IS_USERSCRIPT);
 
@@ -133,18 +176,18 @@ Try reinstalling active mods.`
 				return document.querySelector(`script[src="${s.src}"]`);
 		};
 		let scriptTags = [
-			{ name: "Bootstrap", selector: /vendor\/js\/bootstrap(\.min)?\.js$/, src: '../vendor/js/bootstrap.min.js', ranTest: _ => window.bootstrap, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
-			{ name: "Createjs", selector: /vendor\/js\/createjs(\.min)?\.js$/, src: '../vendor/js/createjs.min.js', ranTest: _ => window.createjs, state: 0, },
-			{ name: "SocketIo", selector: /vendor\/js\/socket\.io(\.min)?\.js$/, src: '../vendor/js/socket.io.js', ranTest: _ => window.io, state: 0, },
-			{ name: "Client", selector: /(lib\/)?client(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => window.client, state: 0, },
-			{ name: "Boot", selector: /(lib\/)?boot(-?\d+)?(\.min)?\.js$/, src: '../lib/boot.min.js', ranTest: _ => window.boot, state: 0, },
+			{ name: "Bootstrap", selector: /vendor\/js\/bootstrap(\.min)?\.js$/, src: '../vendor/js/bootstrap.min.js', ranTest: _ => uWindow.bootstrap, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
+			{ name: "Createjs", selector: /vendor\/js\/createjs(\.min)?\.js$/, src: '../vendor/js/createjs.min.js', ranTest: _ => uWindow.createjs, state: 0, },
+			{ name: "SocketIo", selector: /vendor\/js\/socket\.io(\.min)?\.js$/, src: '../vendor/js/socket.io.js', ranTest: _ => uWindow.io, state: 0, },
+			{ name: "Client", selector: /(lib\/)?client(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.client, state: 0, },
+			{ name: "Boot", selector: /(lib\/)?boot(-?\d+)?(\.min)?\.js$/, src: '../lib/boot.min.js', ranTest: _ => uWindow.boot, state: 0, },
 			//{ name: "Login", selector: /(lib\/)?login(-?\d+)?(\.min)?\.js$/, src: 'login.js', state: 0, },
-			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', ranTest: _ => window.addHero, state: 0, },
-			{ name: "Shop", selector: /(lib\/)?shop(-?\d+)?(\.min)?\.js$/, src: 'shop.js', ranTest: _ => window.extra, state: 0, },
-			{ name: "Index", selector: /(lib\/)?index(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => window.init, state: 0, },
+			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', ranTest: _ => uWindow.addHero, state: 0, },
+			{ name: "Shop", selector: /(lib\/)?shop(-?\d+)?(\.min)?\.js$/, src: 'shop.js', ranTest: _ => uWindow.extra, state: 0, },
+			{ name: "Index", selector: /(lib\/)?index(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.init, state: 0, },
 			//{ name: "ShowGame", selector: /showGame/, state: 0, },
 			//{ name: "Modal", selector: /var\smodalElement/, state: 0, },
-			{ name: "Mobile", selector: /function\s+mobile/, ranTest: _ => window.mobile, state: 0, },
+			{ name: "Mobile", selector: /function\s+mobile/, ranTest: _ => uWindow.mobile, state: 0, },
 		];
 		if (document.scripts)
 			for (let s of scriptTags)
@@ -193,6 +236,7 @@ Try reinstalling active mods.`
 		let finish = function (s) {
 			s.tag.innerHTML = s.text;
 			cardboard.emit(`loadScript${s.name}`, s.tag);
+			cardboard.emit(`loadScript`, s.name, s.tag);
 
 			s.state = 2;
 
@@ -207,6 +251,7 @@ Try reinstalling active mods.`
 					document.documentElement.appendChild(s.tag);
 					s.state = 3;
 					cardboard.emit(`runScript${s.name}`, s.tag);
+					cardboard.emit(`runScript`, s.name, s.tag);
 				}
 			cardboard.emit('runScripts');
 		}
@@ -228,7 +273,7 @@ Try reinstalling active mods.`
 				}
 			if (run) runScripts();
 		};
-		window.addEventListener('load', _ => setTimeout(pageLoadDebugger, 0));
+		uWindow.addEventListener('load', _ => setTimeout(pageLoadDebugger, 0));
 	}
 
 	{ // getPlayerCrumb
@@ -278,16 +323,15 @@ Try reinstalling active mods.`
 	});
 
 	cardboard.on('worldCreated', function (w) {
-		w.on("joinRoom", t =>
-			setTimeout(
-				_ => cardboard.emit('joinRoom', w, t),
-				0));
+		w.on('login', p =>
+			cardboard.emit('login', w, p)
+		);
+		w.on('joinRoom', t =>
+			cardboard.emit('joinRoom', w, t)
+		);
 	});
 
-	cardboard.on('worldSocketCreated', function (w, s) {
-		s.on('login', _ =>
-			setTimeout(
-				_ => cardboard.emit('login', w, s),
-				0));
-	});
+	/*cardboard.on('worldSocketCreated', function (w, s) {
+
+	});*/
 })();

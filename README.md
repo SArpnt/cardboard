@@ -2,6 +2,7 @@
 
 modding api
 
+if cardboard is required:
 ```js
 // @run-at       document-start
 
@@ -9,38 +10,38 @@ modding api
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
 
-cardboard.register(MODNAME, /*optional*/ {data})
+const MOD_DATA = cardboard.register(MOD_NAME, /*optional*/ {data});
 ```
 
-creates variable cardboard containing useful things.\
-\
-cardboard.version stores version of cardboard\
-\
+if cardboard isn't required:
+```js
+// @run-at       document-start
+
+const MOD_DATA = cardboard.register(MOD_NAME, /*can use undefined*/ {data}, false, GM_info);
+```
+
+creates variable cardboard containing useful things.
+
+cardboard.version stores version of cardboard
+
 cardboard.mods stores mods and mod data\
-use allRequiredModsRegistered event to check when all mods that require cardboard have registered\
+use allModsRegistered event to check when all mods that require cardboard have registered\
 use modRegistered to check when a new mod registers\
-use unrequiredModRegistered to check when a new mod that doesn't require cardboard registers\
-\
-cardboard.getPlayer\
-all types:
+use unrequiredModRegistered to check when a new mod that doesn't require cardboard registers
 
-- getPlayerCrumb
-- getPlayerCrumbs
-- getPlayerSprite
-- getPlayerSprites
-
-\
 cardboard contains an [EventHandler](https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js)\
 events:
-
-- modRegistered
-- unrequiredModRegistered
-- requiredModRegistered
-- allRequiredModsRegistered
+- modRegistered(mod, data, cardboard.mods)
+- unrequiredModRegistered(mod, data, cardboard.mods)
+- requiredModRegistered(mod, data, cardboard.mods)
+- allModsRegistered(cardboard.mods)
+<br><br>
 - loadScripts
 - runScripts
-- loadScript*\[scriptname\]*(script innerHTML)
-- runScript*\[scriptname\]*
+- loadScript(scriptname, script tag)
+- runScript(scriptname, script tag)
+- loadScript*\[scriptname\]*(script tag)
+- runScript*\[scriptname\]*(script tag)
   - Bootstrap
   - Createjs
   - SocketIo
@@ -50,10 +51,18 @@ events:
   - Shop
   - Index
   - Mobile
+<br><br>
 - clientCreated(client)
 - worldCreated(world)
-- worldSocketCreated(world, socket)
-- worldStageCreated(world, stage)
+- worldSocketCreated(world, world.socket)
+- worldStageCreated(world, world.stage)
 - worldManifestCreated(world, manifest)
-- login(world)
+- login(world, world.player)
 - joinRoom(world, roomCrumb)
+
+cardboard.getPlayer\
+all types:
+- getPlayerCrumb
+- getPlayerCrumbs
+- getPlayerSprite
+- getPlayerSprites
