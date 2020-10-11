@@ -37,8 +37,8 @@
 		// register
 		if (uWindow.cardboard.awaitingReg)
 			uWindow.cardboard.unregistered.push(uWindow.cardboard.awaitingReg.script.name);
-		else if (uWindow.cardboard.awaitingReg == undefined)
-			alert(`The mod ${mod} loaded late!
+		else if (uWindow.cardboard.awaitingReg === undefined)
+			alert(`The mod '${GM_info.script.name}' loaded late!
 Contact the mod developer.`);
 
 		if (IS_USERSCRIPT)
@@ -106,11 +106,11 @@ Try reinstalling this mod.`);
 
 		if (req && !cardboard.awaitingReg) {
 			if (cardboard.mods[mod]) {
-				alert(`The mod ${(cardboard.mods[mod].GM_info && cardboard.mods[mod].GM_info) || mod} registered twice!
+				alert(`The mod '${(cardboard.mods[mod].GM_info && cardboard.mods[mod].GM_info) || mod}' registered twice!
 Contact the mod creator.`);
 				return;
 			} else {
-				alert(`The mod ${mod} registered without cardboard detecting it beforehand!
+				alert(`The mod '${mod}' registered without cardboard detecting it beforehand!
 Contact the mod creator.`);
 			}
 		}
@@ -138,10 +138,10 @@ Either don't use these mods together or contact the mod creator.`);
 		delete cardboard.awaitingReg;
 
 		if (cardboard.unregistered.length)
-			alert(`The mod${cardboard.unregistered.length == 1 ? '' : 's'} ${cardboard.unregistered} didn't register!
+			alert(`The mod${cardboard.unregistered.length == 1 ? '' : 's'} ${cardboard.unregistered.map(a => `'${a}'`).join(',')} didn't register!
 Try reinstalling the${cardboard.unregistered.length == 1 ? 'is mod' : 'ese mods'}.`);
 		cardboard.register = function (mod) {
-			alert(`The mod ${mod} registered late!
+			alert(`The mod '${mod}' registered late!
 Contact the mod developer.`);
 		};
 		cardboard.emit('allModsRegistered', cardboard.mods);
