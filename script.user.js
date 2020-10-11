@@ -124,8 +124,11 @@ Either don't use these mods together or contact the mod creator.`);
 		if (req) { // assign gm_info
 			data.GM_info = cardboard.awaitingReg;
 			cardboard.awaitingReg = null;
-		} else
+		} else {
 			data.GM_info = gmInfo;
+			if (!gmInfo)
+				console.warn(`No GM_info for mod '${mod}'!`);
+		}
 
 		cardboard.mods[mod] = data;
 		cardboard.emit('modRegistered', mod, data, cardboard.mods);
