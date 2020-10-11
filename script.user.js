@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.4.0
+// @version      5.4.1
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -30,7 +30,7 @@
 
 	const uWindow = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
 
-	const VERSION = [5, 4, 0];
+	const VERSION = [5, 4, 1];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (uWindow.cardboard) {
@@ -101,7 +101,7 @@ Try reinstalling this mod.`);
 		if (!/^[a-z_$][\w$]*$/i.test(mod)) throw new TypeError(`Invalid characters in modname (must be valid for dot notation)`);
 		if (typeof data != 'object' || data === null) throw new TypeError(`Parameter 2 must be of type 'object'`);
 		if (typeof gmInfo != 'undefined' && (
-			typeof gmInfo == 'object' || gmInfo === null ||
+			typeof gmInfo != 'object' || gmInfo === null ||
 			!gmInfo.script || !gmInfo.script.name)) throw new TypeError(`Parameter 4 must be of type GM_info`);
 
 		if (req && !cardboard.awaitingReg) {
