@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.4.1
+// @version      5.5.0
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -30,7 +30,7 @@
 
 	const uWindow = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
 
-	const VERSION = [5, 4, 1];
+	const VERSION = [5, 5, 0];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (uWindow.cardboard) {
@@ -90,7 +90,6 @@ Try reinstalling this mod.`);
 		'login',
 	], false);
 	cardboard.version = VERSION;
-	uWindow.cardboard = cardboard;
 
 	// register system
 	cardboard.mods = {};
@@ -337,4 +336,7 @@ Contact the mod developer.`);
 	/*cardboard.on('worldSocketCreated', function (w, s) {
 
 	});*/
+
+	uWindow.cardboard = cardboard;
+	window.dispatchEvent(new Event('cardboardLoaded'));
 })();

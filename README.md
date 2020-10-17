@@ -17,7 +17,12 @@ if cardboard isn't required:
 ```js
 // @run-at       document-start
 
-const MOD_DATA = cardboard.register(MOD_NAME, /*can use undefined*/ {data}, false, GM_info);
+let MOD_DATA = {data}; // can be replaced with undefined
+const cRegister = _ => cardboard.register(MOD_NAME, MOD_DATA, false, GM_info);
+if (window.cardboard)
+	cRegister();
+else
+	window.addEventListener('cardboardLoaded', cRegister);
 ```
 
 creates variable cardboard containing useful things.
