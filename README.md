@@ -34,7 +34,7 @@ use allModsRegistered event to check when all mods that require cardboard have r
 use modRegistered to check when a new mod registers\
 use unrequiredModRegistered to check when a new mod that doesn't require cardboard registers
 
-cardboard contains an [EventHandler](https://cdn.jsdelivr.net/gh/sarpnt/EventHandler/script.min.js)\
+cardboard contains an [EventHandler](https://github.com/SArpnt/EventHandler)\
 events:
 - modRegistered(mod, data, cardboard.mods)
 - unrequiredModRegistered(mod, data, cardboard.mods)
