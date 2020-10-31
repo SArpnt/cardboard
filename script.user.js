@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.5.0
+// @version      5.5.1
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -11,7 +11,6 @@
 // @icon         https://github.com/SArpnt/cardboard/raw/master/icon16.png
 // @icon64       https://github.com/SArpnt/cardboard/raw/master/icon64.png
 // @run-at       document-start
-// @grant        none
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -186,7 +185,7 @@ Contact the mod developer.`);
 			//{ name: "Login", selector: /(lib\/)?login(-?\d+)?(\.min)?\.js$/, src: 'login.js', state: 0, },
 			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', ranTest: _ => uWindow.addHero, state: 0, },
 			{ name: "Shop", selector: /(lib\/)?shop(-?\d+)?(\.min)?\.js$/, src: 'shop.js', ranTest: _ => uWindow.extra, state: 0, },
-			{ name: "Index", selector: /(lib\/)?index(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.init, state: 0, },
+			{ name: "Index", selector: /(lib\/)?(index|play)(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.init, state: 0, },
 			//{ name: "ShowGame", selector: /showGame/, state: 0, },
 			//{ name: "Modal", selector: /var\smodalElement/, state: 0, },
 			{ name: "Mobile", selector: /function\s+mobile/, ranTest: _ => uWindow.mobile, state: 0, },
