@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.5.1
+// @version      5.6.0
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -180,7 +180,7 @@ Contact the mod developer.`);
 			{ name: "Bootstrap", selector: /vendor\/js\/bootstrap(\.min)?\.js$/, src: '../vendor/js/bootstrap.min.js', ranTest: _ => uWindow.bootstrap, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
 			{ name: "Createjs", selector: /vendor\/js\/createjs(\.min)?\.js$/, src: '../vendor/js/createjs.min.js', ranTest: _ => uWindow.createjs, state: 0, },
 			{ name: "SocketIo", selector: /vendor\/js\/socket\.io(\.min)?\.js$/, src: '../vendor/js/socket.io.js', ranTest: _ => uWindow.io, state: 0, },
-			{ name: "Client", selector: /(lib\/)?client(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.client, state: 0, },
+			{ name: "World", nicknames: ["Client"], selector: /(lib\/)?world(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.client, state: 0, },
 			{ name: "Boot", selector: /(lib\/)?boot(-?\d+)?(\.min)?\.js$/, src: '../lib/boot.min.js', ranTest: _ => uWindow.boot, state: 0, },
 			//{ name: "Login", selector: /(lib\/)?login(-?\d+)?(\.min)?\.js$/, src: 'login.js', state: 0, },
 			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', ranTest: _ => uWindow.addHero, state: 0, },
@@ -189,6 +189,7 @@ Contact the mod developer.`);
 			//{ name: "ShowGame", selector: /showGame/, state: 0, },
 			//{ name: "Modal", selector: /var\smodalElement/, state: 0, },
 			{ name: "Mobile", selector: /function\s+mobile/, ranTest: _ => uWindow.mobile, state: 0, },
+			{ name: "Ux", src: 'ux.js', ranTest: _ => uWindow.ux, state: 0, },
 		];
 		if (document.scripts)
 			for (let s of scriptTags)
@@ -238,6 +239,11 @@ Contact the mod developer.`);
 			s.tag.innerHTML = s.text;
 			cardboard.emit(`loadScript${s.name}`, s.tag);
 			cardboard.emit(`loadScript`, s.name, s.tag);
+			if (s.nicknames)
+				for (let n of s.nicknames) {
+					cardboard.emit(`loadScript${n}`, s.tag);
+					cardboard.emit(`loadScript`, n, s.tag);
+				}
 
 			s.state = 2;
 
@@ -253,6 +259,11 @@ Contact the mod developer.`);
 					s.state = 3;
 					cardboard.emit(`runScript${s.name}`, s.tag);
 					cardboard.emit(`runScript`, s.name, s.tag);
+					if (s.nicknames)
+						for (let n of s.nicknames) {
+							cardboard.emit(`runScript${n}`, s.tag);
+							cardboard.emit(`runScript`, n, s.tag);
+						}
 				}
 			cardboard.emit('runScripts');
 		}
