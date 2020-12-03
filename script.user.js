@@ -29,7 +29,7 @@
 
 	const uWindow = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
 
-	const VERSION = [5, 5, 0];
+	const VERSION = [5, 6, 0];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (uWindow.cardboard) {
