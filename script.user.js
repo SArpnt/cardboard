@@ -185,7 +185,7 @@ Contact the mod developer.`);
 			//{ name: "Login", selector: /(lib\/)?login(-?\d+)?(\.min)?\.js$/, src: 'login.js', state: 0, },
 			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', ranTest: _ => uWindow.addHero, state: 0, },
 			{ name: "Shop", selector: /(lib\/)?shop(-?\d+)?(\.min)?\.js$/, src: 'shop.js', ranTest: _ => uWindow.extra, state: 0, },
-			{ name: "Index", selector: /(lib\/)?(index|play)(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.init, state: 0, },
+			{ name: "Play", nicknames: ["Index"], selector: /(lib\/)?play(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.init, state: 0, },
 			//{ name: "ShowGame", selector: /showGame/, state: 0, },
 			//{ name: "Modal", selector: /var\smodalElement/, state: 0, },
 			{ name: "Mobile", selector: /function\s+mobile/, ranTest: _ => uWindow.mobile, state: 0, },
