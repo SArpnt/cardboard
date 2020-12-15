@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.6.1
+// @version      5.6.2
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -11,12 +11,7 @@
 // @icon         https://github.com/SArpnt/cardboard/raw/master/icon16.png
 // @icon64       https://github.com/SArpnt/cardboard/raw/master/icon64.png
 // @run-at       document-start
-// @match        https://boxcritters.com/play/
-// @match        https://boxcritters.com/play/?*
-// @match        https://boxcritters.com/play/#*
-// @match        https://boxcritters.com/play/index.html
-// @match        https://boxcritters.com/play/index.html?*
-// @match        https://boxcritters.com/play/index.html#*
+// @include      /^https:\/\/boxcritters\.com\/play\/(index\.html)?([\?#].*)?$/
 // @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // ==/UserScript==
