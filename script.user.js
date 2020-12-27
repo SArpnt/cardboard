@@ -2,7 +2,7 @@
 // @name         Cardboard
 // @description  Modding api
 // @author       SArpnt
-// @version      5.6.2
+// @version      5.6.3
 // @namespace    https://boxcrittersmods.ga/authors/sarpnt/
 // @homepage     https://boxcrittersmods.ga/projects/cardboard/
 // @updateURL    https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -24,7 +24,7 @@
 
 	const uWindow = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
 
-	const VERSION = [5, 6, 1];
+	const VERSION = [5, 6, 3];
 	const IS_USERSCRIPT = GM_info.script.name == 'Cardboard';
 
 	if (uWindow.cardboard) {
@@ -175,16 +175,19 @@ Contact the mod developer.`);
 			{ name: "Bootstrap", selector: /vendor\/js\/bootstrap(\.min)?\.js$/, src: '../vendor/js/bootstrap.min.js', ranTest: _ => uWindow.bootstrap, state: 0, }, // state 0 unloaded, 1 loaded, 2 ran
 			{ name: "Createjs", selector: /vendor\/js\/createjs(\.min)?\.js$/, src: '../vendor/js/createjs.min.js', ranTest: _ => uWindow.createjs, state: 0, },
 			{ name: "SocketIo", selector: /vendor\/js\/socket\.io(\.min)?\.js$/, src: '../vendor/js/socket.io.js', ranTest: _ => uWindow.io, state: 0, },
+
 			{ name: "World", nicknames: ["Client"], selector: /(lib\/)?world(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.client, state: 0, },
 			{ name: "Boot", selector: /(lib\/)?boot(-?\d+)?(\.min)?\.js$/, src: '../lib/boot.min.js', ranTest: _ => uWindow.boot, state: 0, },
+
 			//{ name: "Login", selector: /(lib\/)?login(-?\d+)?(\.min)?\.js$/, src: 'login.js', state: 0, },
-			{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', ranTest: _ => uWindow.addHero, state: 0, },
+			//{ name: "Hero", selector: /(lib\/)?hero(-?\d+)?(\.min)?\.js$/, src: 'hero.js', ranTest: _ => uWindow.addHero, state: 0, },
 			{ name: "Shop", selector: /(lib\/)?shop(-?\d+)?(\.min)?\.js$/, src: 'shop.js', ranTest: _ => uWindow.extra, state: 0, },
-			{ name: "Play", nicknames: ["Index"], selector: /^\s*function\s*init\s*\(\s*\)/, src: false, ranTest: _ => uWindow.init, state: 0, },
+			{ name: "Play", nicknames: ["Ux"], selector: /play(-?\d+)?(\.min)?\.js$/, src: true, ranTest: _ => uWindow.ux, state: 0, },
+
+			{ name: "Init", nicknames: ["Index"], selector: /^\s*function\s*init\s*\(\s*\)/, src: false, ranTest: _ => uWindow.init, state: 0, },
 			//{ name: "ShowGame", selector: /showGame/, state: 0, },
 			//{ name: "Modal", selector: /var\smodalElement/, state: 0, },
 			{ name: "Mobile", selector: /function\s+mobile/, ranTest: _ => uWindow.mobile, state: 0, },
-			{ name: "Ux", src: 'ux.js', ranTest: _ => uWindow.ux, state: 0, },
 		];
 		if (document.scripts)
 			for (let s of scriptTags)
